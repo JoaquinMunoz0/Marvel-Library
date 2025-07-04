@@ -1,30 +1,19 @@
 import 'package:http/http.dart' as http;
 
 class MarvelService {
-  String urlRequest;
+  final String url;
 
-  MarvelService(this.urlRequest);
+  MarvelService(this.url);
 
-  Future<String>getMarvel(String searchQuery) async{
-    final url= Uri.parse('$urlRequest/shows?q=$searchQuery');
+  Future<String> getMarvelData() async {
+    final uri = Uri.parse(url);
 
-    final response= await http.get(url);
+    final response = await http.get(uri);
 
-    if(response.statusCode ==200)
-    {
+    if (response.statusCode == 200) {
       return response.body;
-    }
-    else{
-      throw Exception('Failed to load Marvel Details.')
+    } else {
+      throw Exception('Failed to load Marvel data.');
     }
   }
-
-
-  }
-  
-
-
-
-
-
-
+}
