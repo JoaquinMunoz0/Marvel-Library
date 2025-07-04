@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'marvel_services.dart';
+import '../services/marvel_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
