@@ -8,6 +8,10 @@
 
 ### Como muestra de funcionamiento principal se presentan las siguientes pruebas de resultados obtenidos mediante postman:
 
-![Prueba 1](https://github.com/user-attachments/assets/cdbf7f94-6652-445a-842e-cca6cf9481ad)
-![Prueba 2](https://github.com/user-attachments/assets/6fdea1c9-a115-4449-9f8f-20b0074cec6c)
-![Prueba 3](https://github.com/user-attachments/assets/8f4db591-36b5-4f21-a114-46735dc1379e)
+<table>
+  <tr>
+    <td><img src= "https://github.com/user-attachments/assets/cdbf7f94-6652-445a-842e-cca6cf9481ad" width="200"/></td>
+    <td><img src= "https://github.com/user-attachments/assets/6fdea1c9-a115-4449-9f8f-20b0074cec6c" width="200"/></td>
+    <td><img src= "https://github.com/user-attachments/assets/8f4db591-36b5-4f21-a114-46735dc1379e" width="200"/></td>
+  </tr>
+</table>  
