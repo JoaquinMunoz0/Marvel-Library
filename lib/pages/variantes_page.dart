@@ -22,7 +22,7 @@ class _VariantesPageState extends State<VariantesPage> {
     super.initState();
     // Creamos el servicio con el nombre base
     marvelService = MarvelService(
-      'https://gateway.marvel.com/v1/public/characters?nameStartsWith=${Uri.encodeComponent(widget.baseName)}&limit=100&offset=0',
+      'https://gateway.marvel.com/v1/public/characters?nameStartsWith=${Uri.encodeComponent(widget.baseName)}&limit=100&offset=0&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
     );
     loadVariantes();
   }
@@ -68,8 +68,18 @@ class _VariantesPageState extends State<VariantesPage> {
                       ? Text(description)
                       : null,
                   onTap: () {
-                    // Futuro: navegar a pantalla de cómics o historias
-                  },
+                  final id = variant['id'];
+                  final name = variant['name'];
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistoriesPage(
+                        characterId: id,
+                        characterName: name,
+                      ),
+                    ),
+                  );
+                },
                 );
               },
             ),
