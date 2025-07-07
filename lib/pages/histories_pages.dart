@@ -26,7 +26,7 @@ class _HistoriesPageState extends State<HistoriesPage> {
   void initState() {
     super.initState();
     marvelService = MarvelService(
-      'https://gateway.marvel.com/v1/public/characters/${widget.characterId}/comics?limit=100&offset=0',
+      'https://gateway.marvel.com/v1/public/characters/${widget.characterId}/comics?limit=100&offset=offset=300&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
     );
     loadComics();
   }

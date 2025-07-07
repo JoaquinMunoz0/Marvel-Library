@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MarvelService marvelService = MarvelService(
-    'https://gateway.marvel.com/v1/public/characters?limit=100&offset=0&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
+    'https://gateway.marvel.com/v1/public/characters?limit=100&offset=offset=300&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
   );
 
   List<dynamic> characters = [];
