@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marvel_lib/pages/histories_pages.dart';
 import 'dart:convert';
 import '../services/marvel_services.dart';
 
