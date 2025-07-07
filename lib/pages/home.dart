@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import '../services/marvel_services.dart';
+import 'variantes_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MarvelService marvelService = MarvelService(
-    'https://gateway.marvel.com/v1/public/characters?nameStartsWith=Spider&ts=1751646862&apikey=40a835d209da33c1145163d7b5d39c76&hash=4c3e7bd19192e001f5258e8a7c5f2397',
+    'https://gateway.marvel.com/v1/public/characters?limit=100&offset=0',
   );
 
   List<dynamic> characters = [];
@@ -44,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Marvel Characters")),
+      appBar: AppBar(title: const Text("Personajes Marvel")),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -59,6 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ListTile(
                   leading: Image.network(imageUrl),
                   title: Text(name),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VariantesPage(baseName: name),
+                      ),
+                    );
+                  },
                 );
               },
             ),
