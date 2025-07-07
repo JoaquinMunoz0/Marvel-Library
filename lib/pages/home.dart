@@ -11,10 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final MarvelService marvelService = MarvelService(
-    'https://gateway.marvel.com/v1/public/characters?limit=100&offset=offset=300&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
-  );
-
   List<dynamic> characters = [];
   bool isLoading = true;
 
@@ -25,22 +21,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadCharacters() async {
-    try {
+  final offsets = [0, 200, 400, 600, 800]; // Puedes cambiar o ampliar
+  List<dynamic> allCharacters = [];
+
+  try {
+    for (final offset in offsets) {
+      final url =
+          'https://gateway.marvel.com/v1/public/characters?limit=100&offset=$offset&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198';
+
+      final marvelService = MarvelService(url);
       final data = await marvelService.getMarvelData();
       final json = jsonDecode(data);
       final results = json['data']['results'];
 
-      setState(() {
-        characters = results;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print('Error fetching characters: $e');
+      allCharacters.addAll(results);
     }
+
+    // Aquí aplicamos el filtro para evitar mostrar variantes
+    Set<String> nombreBasesVistos = {};
+    List<dynamic> filtrados = [];
+
+    for (var personaje in allCharacters) {
+      String nombre = personaje['name'];
+      // Cortamos el nombre base antes del paréntesis si existe
+      String nombreBase = nombre.contains('(')
+          ? nombre.split('(')[0].trim()
+          : nombre.trim();
+
+      if (!nombreBasesVistos.contains(nombreBase)) {
+        nombreBasesVistos.add(nombreBase);
+        filtrados.add(personaje);
+      }
+    }
+
+    setState(() {
+      characters = filtrados;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    print('Error fetching characters: $e');
   }
+}
 
   @override
   Widget build(BuildContext context) {
