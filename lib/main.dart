@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/home.dart';
+import 'theme/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,10 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Marvel Viewer',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: true,
-      ),
+      theme: MarvelTheme.darkTheme,
       home: const HomeScreen(),
     );
   }
