@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../services/marvel_services.dart';
 import '../utils/util.dart';
 import 'character_list_screen.dart';
 import 'character_detail.dart';  // Importa la nueva pantalla
-import 'preferences_page.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
