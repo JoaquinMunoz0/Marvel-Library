@@ -4,6 +4,7 @@ import '../services/marvel_services.dart';
 import '../utils/util.dart';
 import 'character_list_screen.dart';
 import 'character_detail.dart';  // Importa la nueva pantalla
+import 'preferences_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,48 +26,60 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadCharacters() async {
-    final offsets = [0, 200, 400, 600, 800];
-    List<dynamic> fetched = [];
+  const int totalCharactersMarvel = 1562;
+  final prefs = await SharedPreferences.getInstance();
+  final int desiredCount = prefs.getInt('heroCount') ?? 30;
+  const int maxAttempts = 10;
+  const int limitPerCall = 100;
+
+  Set<String> nombreBasesVistos = {};
+  List<dynamic> personajesUnicos = [];
+
+  int attempts = 0;
+
+  setState(() {
+    isLoading = true;
+  });
+
+  while (personajesUnicos.length < desiredCount && attempts < maxAttempts) {
+    attempts++;
+    final offset = (DateTime.now().millisecondsSinceEpoch + attempts * 777) %
+        (totalCharactersMarvel - limitPerCall);
+
+    final url =
+        'https://gateway.marvel.com/v1/public/characters?limit=$limitPerCall&offset=$offset&ts=1752117884&apikey=40a835d209da33c1145163d7b5d39c76&hash=18a95e3d649ebb36a0fb101234f189dc';
 
     try {
-      for (final offset in offsets) {
-        final url =
-            'https://gateway.marvel.com/v1/public/characters?limit=100&offset=$offset&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198';
+      final marvelService = MarvelService(url);
+      final data = await marvelService.getMarvelData();
+      final json = jsonDecode(data);
+      final results = json['data']['results'];
 
-        final marvelService = MarvelService(url);
-        final data = await marvelService.getMarvelData();
-        final json = jsonDecode(data);
-        final results = json['data']['results'];
+      for (var personaje in results) {
+        if (personajesUnicos.length >= desiredCount) break;
 
-        fetched.addAll(results);
-      }
-
-      // Filtrar por nombre base
-      Set<String> nombresVistos = {};
-      List<dynamic> filtrados = [];
-
-      for (var personaje in fetched) {
         String nombre = personaje['name'];
-        String nombreBase = AppUtils.cleanCharacterName(nombre);
+        String nombreBase = nombre.contains('(')
+            ? nombre.split('(')[0].trim()
+            : nombre.trim();
 
-        if (!nombresVistos.contains(nombreBase)) {
-          nombresVistos.add(nombreBase);
-          filtrados.add(personaje);
+        if (!nombreBasesVistos.contains(nombreBase)) {
+          nombreBasesVistos.add(nombreBase);
+          personajesUnicos.add(personaje);
         }
       }
-
-      setState(() {
-        allCharacters = filtrados;
-        filteredCharacters = filtrados;
-        isLoading = false;
-      });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      //print('Error fetching characters: $e');
+      print('Error fetching characters: $e');
+      break;
     }
   }
+
+  setState(() {
+    allCharacters = personajesUnicos;
+    filteredCharacters = personajesUnicos;
+    isLoading = false;
+  });
+}
 
   void filterCharacters(String query) {
     final filtered = allCharacters.where((char) {
