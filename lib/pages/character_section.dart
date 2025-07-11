@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
+import 'character_detail.dart';
 
-class ComicsSection extends StatelessWidget {
-  final List<dynamic> comics;
-  final void Function(BuildContext context, Map<String, dynamic> comic)? onComicTap;
+class CharacterAppearancesSection extends StatelessWidget {
+  final List<dynamic> characters;
+  final void Function(BuildContext context, Map<String, dynamic> character)? onCharacterTap;
 
-  const ComicsSection({
+  const CharacterAppearancesSection({
     super.key,
-    required this.comics,
-    this.onComicTap,
+    required this.characters,
+    this.onCharacterTap,
   });
+
+  void _navigateToCharacter(BuildContext context, Map<String, dynamic> character) {
+    if (onCharacterTap != null) {
+      onCharacterTap!(context, character);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CharacterDetailPage(
+            characterId: character['id'],
+            characterName: character['name'],
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    const background = Colors.black;
-
-    if (comics.isEmpty) {
+    if (characters.isEmpty) {
       return const Text(
-        'No hay cómics disponibles.',
+        'No hay personajes disponibles.',
         style: TextStyle(color: Colors.white54),
       );
     }
@@ -25,21 +40,17 @@ class ComicsSection extends StatelessWidget {
       height: 350,
       child: PageView.builder(
         controller: PageController(viewportFraction: 0.5),
-        itemCount: comics.length,
+        itemCount: characters.length,
         itemBuilder: (context, index) {
-          final comic = comics[index];
+          final character = characters[index];
           final imageUrl =
-              '${comic['thumbnail']['path']}/portrait_uncanny.${comic['thumbnail']['extension']}';
+              '${character['thumbnail']['path']}/portrait_uncanny.${character['thumbnail']['extension']}';
 
           return GestureDetector(
-            onTap: () {
-              if (onComicTap != null) {
-                onComicTap!(context, comic);
-              }
-            },
+            onTap: () => _navigateToCharacter(context, character),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 12),
-              color: background,
+              color: Colors.black,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -47,17 +58,9 @@ class ComicsSection extends StatelessWidget {
                     imageUrl,
                     height: 280,
                     fit: BoxFit.contain,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: Colors.grey[900],
-                        height: 280,
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    },
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[900],
                       height: 280,
+                      color: Colors.grey[900],
                       child: const Icon(Icons.broken_image, size: 80, color: Colors.white30),
                     ),
                   ),
@@ -65,7 +68,7 @@ class ComicsSection extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      comic['title'] ?? 'Sin título',
+                      character['name'] ?? 'Sin nombre',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,

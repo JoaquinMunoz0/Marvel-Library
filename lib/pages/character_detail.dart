@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../services/marvel_services.dart';
 import 'variants_section.dart';
 import 'comics_section.dart';
+import 'comics_detail.dart';
 
 class CharacterDetailPage extends StatefulWidget {
   final int characterId;
@@ -28,15 +29,24 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
   late final MarvelService marvelServiceVariants;
   late final MarvelService marvelServiceComics;
 
+  String getBaseCharacterName(String fullName) {
+    return fullName.contains('(')
+        ? fullName.split('(')[0].trim()
+        : fullName.trim();
+  }
+
   @override
   void initState() {
     super.initState();
+
+    final baseName = getBaseCharacterName(widget.characterName);
+
     marvelServiceCharacter = MarvelService(
       'https://gateway.marvel.com/v1/public/characters/${widget.characterId}?ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
     );
 
     marvelServiceVariants = MarvelService(
-      'https://gateway.marvel.com/v1/public/characters?nameStartsWith=${Uri.encodeComponent(widget.characterName)}&limit=100&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
+      'https://gateway.marvel.com/v1/public/characters?nameStartsWith=${Uri.encodeComponent(baseName)}&limit=100&ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
     );
 
     marvelServiceComics = MarvelService(
@@ -79,16 +89,26 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     }
   }
 
-  void showVariantDescription(BuildContext context, Map<String, dynamic> variant) {
-    final description = variant['description'] ?? 'Sin descripción disponible.';
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(variant['name']),
-        content: SingleChildScrollView(child: Text(description)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
-        ],
+  void navigateToVariantDetail(BuildContext context, Map<String, dynamic> variant) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CharacterDetailPage(
+          characterId: variant['id'],
+          characterName: variant['name'],
+        ),
+      ),
+    );
+  }
+
+  void navigateToComicDetail(BuildContext context, Map<String, dynamic> comic) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ComicDetailPage(
+          comicId: comic['id'],
+          comicTitle: comic['title'],
+        ),
       ),
     );
   }
@@ -145,7 +165,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                       VariantsSection(
                         variants: variantes,
                         baseCharacterName: widget.characterName,
-                        onVariantTap: showVariantDescription,
+                        onVariantTap: navigateToVariantDetail,
                       ),
                       const SizedBox(height: 32),
 
@@ -158,7 +178,10 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                             ),
                       ),
                       const SizedBox(height: 12),
-                      ComicsSection(comics: comics),
+                      ComicsSection(
+                        comics: comics,
+                        onComicTap: navigateToComicDetail,
+                      ),
                     ],
                   ),
                 ),
