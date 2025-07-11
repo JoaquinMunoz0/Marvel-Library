@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ComicsSection extends StatelessWidget {
+class ComicsSection extends StatefulWidget {
   final List<dynamic> comics;
   final void Function(BuildContext context, Map<String, dynamic> comic)? onComicTap;
 
@@ -11,10 +11,35 @@ class ComicsSection extends StatelessWidget {
   });
 
   @override
+  State<ComicsSection> createState() => _ComicsSectionState();
+}
+
+class _ComicsSectionState extends State<ComicsSection> {
+  late final PageController _pageController;
+
+  static const int _infiniteScrollMultiplier = 1000;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialPage = widget.comics.length * (_infiniteScrollMultiplier ~/ 2);
+    _pageController = PageController(
+      viewportFraction: 0.5,
+      initialPage: initialPage,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const background = Colors.black;
 
-    if (comics.isEmpty) {
+    if (widget.comics.isEmpty) {
       return const Text(
         'No hay cómics disponibles.',
         style: TextStyle(color: Colors.white54),
@@ -24,17 +49,17 @@ class ComicsSection extends StatelessWidget {
     return SizedBox(
       height: 350,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.5),
-        itemCount: comics.length,
+        controller: _pageController,
+        itemCount: widget.comics.length * _infiniteScrollMultiplier,
         itemBuilder: (context, index) {
-          final comic = comics[index];
+          final comic = widget.comics[index % widget.comics.length];
           final imageUrl =
               '${comic['thumbnail']['path']}/portrait_uncanny.${comic['thumbnail']['extension']}';
 
           return GestureDetector(
             onTap: () {
-              if (onComicTap != null) {
-                onComicTap!(context, comic);
+              if (widget.onComicTap != null) {
+                widget.onComicTap!(context, comic);
               }
             },
             child: Container(

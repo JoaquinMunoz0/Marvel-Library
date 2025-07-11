@@ -21,18 +21,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadCharacters();
+    loadCharacters(); // CARGAR PERSONAJES AL INICIAR
   }
 
+  // CARGA PERSONAJES DESDE LA API
   Future<void> loadCharacters() async {
-    const int totalCharactersMarvel = 1562;
-    final int desiredCount = await ActivityPreferences.loadHeroCount();
+    const int totalCharactersMarvel = 1562; // TOTAL CONOCIDOS DE PERSONAJES EN LA API
+    final int desiredCount = await ActivityPreferences.loadHeroCount(); // CANTIDAD QUE PREFIERA EL USUARIO
     const int maxAttempts = 10;
     const int limitPerCall = 100;
 
     Set<String> nombreBasesVistos = {};
     List<dynamic> personajesUnicos = [];
-
     int attempts = 0;
 
     setState(() {
@@ -61,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? nombre.split('(')[0].trim()
               : nombre.trim();
 
+          // EVITAR AGREGAR VARIANTES CON EL MISMO NOMBRE
           if (!nombreBasesVistos.contains(nombreBase)) {
             nombreBasesVistos.add(nombreBase);
             personajesUnicos.add(personaje);
@@ -82,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Marvel Viewer"),
+        title: const Text("Marvel Library", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold,),),
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
@@ -96,67 +97,69 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : PageView.builder(
-              itemCount: filteredCharacters.length,
-              controller: PageController(viewportFraction: 0.85),
-              itemBuilder: (context, index) {
-                final character = filteredCharacters[index];
-                final name = character['name'];
-                final thumbnail = character['thumbnail'];
-                final imageUrl =
-                    '${thumbnail['path']}/portrait_uncanny.${thumbnail['extension']}';
+      body: SafeArea(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : PageView.builder(
+                itemCount: filteredCharacters.length,
+                controller: PageController(viewportFraction: 0.85),
+                itemBuilder: (context, index) {
+                  final character = filteredCharacters[index];
+                  final name = character['name'];
+                  final thumbnail = character['thumbnail'];
+                  final imageUrl =
+                      '${thumbnail['path']}/portrait_uncanny.${thumbnail['extension']}';
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CharacterDetailPage(
-                          characterId: character['id'],
-                          characterName: name,
+                  return GestureDetector(
+                    onTap: () {
+                      // NAVEGACION A DETALLES DE PERSONAJE
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CharacterDetailPage(
+                            characterId: character['id'],
+                            characterName: name,
+                          ),
                         ),
+                      );
+                    },
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(vertical: 112, horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    );
-                  },
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 112, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 5,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      elevation: 5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.network(
+                              imageUrl,
+                              height: 350,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: Image.network(
-                            imageUrl,
-                            height: 350,
-                            fit: BoxFit.cover,
+                          const SizedBox(height: 8),
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
+                          const SizedBox(height: 8),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
       floatingActionButton: FloatingActionButton(
         tooltip: "Buscar personaje",
         onPressed: () {

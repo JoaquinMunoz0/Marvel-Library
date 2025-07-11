@@ -4,6 +4,7 @@ import '../services/marvel_services.dart';
 import 'variants_section.dart';
 import 'comics_section.dart';
 import 'comics_detail.dart';
+import 'package:marvel_lib/entities/activity.dart';
 
 class CharacterDetailPage extends StatefulWidget {
   final int characterId;
@@ -24,6 +25,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
   List<dynamic> variantes = [];
   List<dynamic> comics = [];
   bool isLoading = true;
+  bool isFavorite = false;
 
   late final MarvelService marvelServiceCharacter;
   late final MarvelService marvelServiceVariants;
@@ -41,6 +43,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
 
     final baseName = getBaseCharacterName(widget.characterName);
 
+    // SERVICIOS DE LA API
     marvelServiceCharacter = MarvelService(
       'https://gateway.marvel.com/v1/public/characters/${widget.characterId}?ts=1751930069&apikey=40a835d209da33c1145163d7b5d39c76&hash=a9641d5a746d417c9e5a8203a8c24198',
     );
@@ -56,6 +59,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     fetchAllData();
   }
 
+  // CARGA DE INFORMACION TANTO DE PERSONAJES COMO COMICS Y FAVORITOS
   Future<void> fetchAllData() async {
     try {
       final characterDataRaw = await marvelServiceCharacter.getMarvelData();
@@ -71,15 +75,16 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
       final comicsJson = jsonDecode(comicsRaw);
       final comicsResults = comicsJson['data']['results'];
 
+      final alreadyFavorite =
+          await ActivityPreferences.isFavorite(widget.characterId);
+
       setState(() {
         characterInfo = character;
-
-        // Filtrar variantes para no mostrar la actual (por nombre exacto)
         variantes = variantsResults
             .where((v) => v['name'] != widget.characterName)
             .toList();
-
         comics = comicsResults;
+        isFavorite = alreadyFavorite;
         isLoading = false;
       });
     } catch (e) {
@@ -89,7 +94,28 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     }
   }
 
-  void navigateToVariantDetail(BuildContext context, Map<String, dynamic> variant) {
+  // AGREGAR O ELIMINAR FAVORITOS
+  Future<void> toggleFavorite() async {
+    if (characterInfo == null) return;
+
+    if (isFavorite) {
+      await ActivityPreferences.removeFavoriteCharacter(widget.characterId);
+    } else {
+      await ActivityPreferences.addFavoriteCharacter({
+        'id': widget.characterId,
+        'name': widget.characterName,
+        'thumbnail': characterInfo!['thumbnail'],
+      });
+    }
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+  }
+
+  // NAVEGACION DE PANTALLA DE DETALLES PARA LAS VARIANTES
+  void navigateToVariantDetail(
+      BuildContext context, Map<String, dynamic> variant) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -101,7 +127,9 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     );
   }
 
-  void navigateToComicDetail(BuildContext context, Map<String, dynamic> comic) {
+  // NAVEGACION DE PANTALLA DE DETALLES DEL COMIC 
+  void navigateToComicDetail(
+      BuildContext context, Map<String, dynamic> comic) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -124,16 +152,32 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              color: Colors.amber,
+            ),
+            tooltip:
+                isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos',
+            onPressed: toggleFavorite,
+          ),
+        ],
       ),
-      body: isLoading
+      body: SafeArea(
+      child: isLoading
           ? const Center(child: CircularProgressIndicator())
           : characterInfo == null
-              ? const Center(child: Text('No se encontró información del personaje.'))
+              ? const Center(
+                  child: Text('No se encontró información del personaje.'),
+                )
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+
+                      // IMAGEN DEL PERSONAJE
                       Center(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
@@ -145,21 +189,26 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // DESCRIPCION
                       Text(
                         characterInfo!['description'].toString().isEmpty
                             ? 'Sin descripción disponible.'
                             : characterInfo!['description'],
-                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.white),
                       ),
                       const SizedBox(height: 24),
 
+                      // VARIANTES DEL PERSONAJE
                       Text(
                         'Variantes',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Colors.redAccent,
-                              fontSize: 32,
-                              fontWeight: FontWeight.normal,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Colors.redAccent,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.normal,
+                                ),
                       ),
                       const SizedBox(height: 12),
                       VariantsSection(
@@ -169,13 +218,15 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                       ),
                       const SizedBox(height: 32),
 
+                      // APARICIONES EN COMICS
                       Text(
                         'Apariciones',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Colors.redAccent,
-                              fontSize: 32,
-                              fontWeight: FontWeight.normal,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Colors.redAccent,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.normal,
+                                ),
                       ),
                       const SizedBox(height: 12),
                       ComicsSection(
@@ -185,6 +236,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                     ],
                   ),
                 ),
+      ),
     );
   }
 }

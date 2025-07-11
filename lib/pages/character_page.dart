@@ -63,7 +63,8 @@ class _CharacterPageState extends State<CharacterPage> {
     final isCharacter = searchType == 'personaje';
     final name = isCharacter ? item['name'] : item['title'];
     final thumbnail = item['thumbnail'];
-    final imageUrl = '${thumbnail['path']}/portrait_uncanny.${thumbnail['extension']}';
+    final imageUrl =
+        '${thumbnail['path']}/portrait_uncanny.${thumbnail['extension']}';
 
     return GestureDetector(
       onTap: () {
@@ -89,35 +90,57 @@ class _CharacterPageState extends State<CharacterPage> {
           );
         }
       },
-      child: Card(
+      child: Container(
         margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 6,
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                height: 300,
-                fit: BoxFit.cover,
-              ),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black54,
+              offset: Offset(0, 4),
+              blurRadius: 8,
             ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 12),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AspectRatio(
+                aspectRatio: 2 / 3, // proporción ideal tipo "poster"
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      color: Colors.grey[850],
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[850],
+                    child: const Icon(Icons.broken_image, size: 80, color: Colors.white30),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                color: Colors.black87,
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -127,92 +150,94 @@ class _CharacterPageState extends State<CharacterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Buscar en Marvel")),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        onSubmitted: searchMarvel,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: searchType == 'personaje' ? 'Ej: Iron Man' : 'Ej: Civil War',
-                          hintStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(Icons.search, color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.grey[850],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+      body: SafeArea( 
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          onSubmitted: searchMarvel,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: searchType == 'personaje' ? 'Ej: Iron Man' : 'Ej: Civil War',
+                            hintStyle: const TextStyle(color: Colors.white70),
+                            prefixIcon: const Icon(Icons.search, color: Colors.white),
+                            filled: true,
+                            fillColor: Colors.grey[850],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () => searchMarvel(_controller.text),
-                      child: const Text('Buscar'),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => searchMarvel(_controller.text),
+                        child: const Text('Buscar'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Personajes'),
+                        selected: searchType == 'personaje',
+                        onSelected: (selected) {
+                          setState(() {
+                            searchType = 'personaje';
+                            searchResults.clear();
+                            _controller.clear();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: const Text('Cómics'),
+                        selected: searchType == 'comic',
+                        onSelected: (selected) {
+                          setState(() {
+                            searchType = 'comic';
+                            searchResults.clear();
+                            _controller.clear();
+                          });
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.white70),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ChoiceChip(
-                      label: const Text('Personajes'),
-                      selected: searchType == 'personaje',
-                      onSelected: (selected) {
-                        setState(() {
-                          searchType = 'personaje';
-                          searchResults.clear();
-                          _controller.clear();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('Cómics'),
-                      selected: searchType == 'comic',
-                      onSelected: (selected) {
-                        setState(() {
-                          searchType = 'comic';
-                          searchResults.clear();
-                          _controller.clear();
-                        });
-                      },
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          if (isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (errorMessage.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                errorMessage,
-                style: const TextStyle(color: Colors.white70),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    final item = searchResults[index];
+                    return buildResultCard(item);
+                  },
+                ),
               ),
-            )
-          else
-            Expanded(
-              child: ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  final item = searchResults[index];
-                  return buildResultCard(item);
-                },
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

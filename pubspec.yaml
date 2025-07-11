@@ -1,14 +1,12 @@
 name: marvel_lib
 description: "A new Flutter project."
 
-publish_to: 'none' 
-
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: ^3.7.2
-
 
 dependencies:
   flutter:
@@ -23,20 +21,25 @@ dependencies:
   connectivity_plus: ^5.0.2
 
 dev_dependencies:
-
   flutter_test:
     sdk: flutter
-
-
   flutter_lints: ^5.0.0
-
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/iconoDefinitivo.png
 
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/icons/icon_marvel_lib.png"
+  image_path: "assets/icons/iconoDefinitivo.png"
   min_sdk_android: 21
- 
+
+flutter_native_splash:
+  color: "#000000"
+  image: assets/icons/iconoDefinitivo.png
+  android: true
+  ios: true
+  fullscreen: true
