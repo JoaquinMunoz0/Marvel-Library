@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:marvel_lib/entities/activity.dart';
 import 'character_detail.dart';
 import 'comics_detail.dart';
+import 'dart:async';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,6 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  Timer? _debounce;//timer para cambio de nombre
+
   int currentValue = 30; // VALOR INICIAL PARA LA CANTIDAD DE HEROES A MOSTRAR EN EL HOME
 
   List<dynamic> favoriteHeroes = []; // LISTA DE HEROES FAVORITOS
@@ -25,7 +28,25 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _loadPreferences();
+
+    _nameController.addListener(_onNameChanged);
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _nameController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onNameChanged() {
+  if (_debounce?.isActive ?? false) _debounce!.cancel();
+  _debounce = Timer(const Duration(milliseconds: 800), () async {
+    final name = _nameController.text.trim();
+    await ActivityPreferences.saveUsername(name);
+  });
+}
 
   // CARAGA LAS PREFERENCIAS EN EL ALMACENAMIENTO
   Future<void> _loadPreferences() async {
@@ -74,7 +95,17 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: AppBar(title: const Text('Perfil'),
+        actions: [
+        IconButton(
+          icon: const Icon(Icons.info_outline),
+          tooltip: 'Acerca de la app',
+          onPressed: () {
+            Navigator.pushNamed(context, '/about');
+          },
+        ),
+      ],
+      ),
       // SAFE AREA
       body: SafeArea(
         child: SingleChildScrollView(

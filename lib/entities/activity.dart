@@ -102,4 +102,6 @@ class ActivityPreferences {
     final current = await loadFavoriteComics();
     return current.any((c) => c['id'] == id);
   }
+
+  
 }

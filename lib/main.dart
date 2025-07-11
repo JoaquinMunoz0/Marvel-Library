@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'pages/home.dart';
 import 'theme/theme.dart';
+import 'pages/about.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +31,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Marvel Viewer',
       theme: MarvelTheme.darkTheme,
+      routes: {
+        '/about': (context) => const AboutPage(),
+      },
       home: FutureBuilder<bool>(
         future: checkInternetConnection(),
         builder: (context, snapshot) {
