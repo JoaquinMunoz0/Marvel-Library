@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:marvel_lib/entities/activity.dart'; // ajusta el import según tu estructura
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -10,35 +10,35 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _controller = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  int currentValue = 30; // Valor por defecto
+  int currentValue = 30;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentPreference();
+    _loadPreferences();
   }
 
-  Future<void> _loadCurrentPreference() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _loadPreferences() async {
+    final value = await ActivityPreferences.loadHeroCount();
+    final name = await ActivityPreferences.loadUsername();
     setState(() {
-      currentValue = prefs.getInt('heroCount') ?? 30;
-      _controller.text = currentValue.toString();
+      currentValue = value;
+      _controller.text = value.toString();
+      _nameController.text = name;
     });
   }
 
-  Future<void> _savePreference(int value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('heroCount', value);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Preferencia guardada')),
-    );
-  }
-
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       final int newValue = int.parse(_controller.text);
-      _savePreference(newValue);
+      await ActivityPreferences.saveHeroCount(newValue);
+      await ActivityPreferences.saveUsername(_nameController.text.trim());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preferencias guardadas')),
+      );
     }
   }
 
@@ -50,21 +50,24 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Ícono de usuario
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey,
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
             const SizedBox(height: 12),
-            // Nombre de usuario
-            const Text(
-              'Nombre de Usuario',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            TextField(
+              controller: _nameController,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Ingresa tu nombre',
+              ),
             ),
             const SizedBox(height: 24),
 
-            // Card de héroes favoritos
+            // Card: héroes favoritos (espacio reservado)
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -86,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 16),
 
-            // Card de preferencias
+            // preferencias
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -103,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Cantidad de héroes a mostrar (1-50)',
+                        'Cantidad de héroes a mostrar (1–50)',
                         style: TextStyle(fontSize: 16),
                       ),
                       const SizedBox(height: 12),
@@ -141,3 +144,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+

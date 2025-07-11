@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../services/marvel_services.dart';
 import 'character_detail.dart';
 import 'character_page.dart';
-import 'profile.dart'; // <-- DESCOMENTAR PARA CUANDO HAGAS LA PANTALLA DE PERFIL
+import 'profile.dart';
+import 'package:marvel_lib/entities/activity.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,8 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> loadCharacters() async {
     const int totalCharactersMarvel = 1562;
-    final prefs = await SharedPreferences.getInstance();
-    final int desiredCount = prefs.getInt('heroCount') ?? 30;
+    final int desiredCount = await ActivityPreferences.loadHeroCount();
     const int maxAttempts = 10;
     const int limitPerCall = 100;
 
