@@ -4,7 +4,7 @@ import 'dart:convert';
 import '../services/marvel_services.dart';
 import 'character_detail.dart';
 import 'character_page.dart';
-// import 'profile_page.dart'; // <-- DESCOMENTAR PARA CUANDO HAGAS LA PANTALLA DE PERFIL
+import 'profile.dart'; // <-- DESCOMENTAR PARA CUANDO HAGAS LA PANTALLA DE PERFIL
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Marvel Viewer"),
         actions: [
           // BOTON PANTALLA DE PERFIL
-          /*
+          
           IconButton(
             icon: const Icon(Icons.person),
             tooltip: "Perfil de usuario",
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          */
+          
         ],
       ),
       body: isLoading
