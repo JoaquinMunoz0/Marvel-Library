@@ -1,4 +1,4 @@
-package com.example.marvel_lib
+package cl.jojos.marvel_lib
 
 import io.flutter.embedding.android.FlutterActivity
 
