@@ -84,8 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text("Marvel Viewer"),
         actions: [
-          // BOTON PANTALLA DE PERFIL
-          
           IconButton(
             icon: const Icon(Icons.person),
             tooltip: "Perfil de usuario",
@@ -93,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProfilePage(), // <-- TIENE QUE TENER ESTA CLASE JOPUTA
+                  builder: (context) => const ProfilePage(),
                 ),
               );
             },
@@ -126,31 +124,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+                    margin: const EdgeInsets.symmetric(vertical: 112, horizontal: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    elevation: 6,
+                    elevation: 5,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            imageUrl,
-                            height: 300,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
                         Text(
                           name,
                           style: const TextStyle(
-                            fontSize: 22,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(5),
+                          child: Image.network(
+                            imageUrl,
+                            height: 350,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         const SizedBox(height: 8),
                       ],
