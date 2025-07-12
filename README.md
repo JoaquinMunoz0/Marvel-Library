@@ -12,7 +12,6 @@ Una aplicación que permite explorar personajes y cómics del universo Marvel ut
 ## 📦 Información del paquete
 
 - **Flutter SDK:** 3.7.2
-- **Estado:** MVP funcional
 - **Lenguaje:** Dart
 - **Dependencias principales:**
   - `http`: solicitudes a la API de Marvel
