@@ -75,15 +75,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
-    if (internetOk) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MyApp()),
-      );
-    }
+if (internetOk) {
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (_) => const HomeScreen()),
+  );
+} else {
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (_) => const.        NoConnectionScreen()),
+   );
+}
   }
 
   @override
