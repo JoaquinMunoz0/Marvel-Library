@@ -43,7 +43,7 @@ Una aplicación que permite explorar personajes y cómics del universo Marvel ut
 
 - API de Marvel: https://developer.marvel.com/
 - Documentación oficial de Flutter: https://flutter.dev/
-- **APK para instalación:** 
+- **APK para instalación:** https://github.com/JoaquinMunoz0/Marvel-Library/releases/tag/APK
 
 ---
 
